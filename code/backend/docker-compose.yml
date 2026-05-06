@@ -1,0 +1,32 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: listen-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: listen
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: listen-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DB_NAME: listen
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  mongodb_data:

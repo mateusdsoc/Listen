@@ -1,0 +1,176 @@
+{
+  "info": {
+    "name": "Listen API - Sprint 1",
+    "description": "Coleção de testes do backend Listen (Sprint 1).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "solicitanteId", "value": "" },
+    { "key": "ouvinteId", "value": "" },
+    { "key": "sessaoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+      }
+    },
+    {
+      "name": "Cadastrar solicitante",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.id) pm.collectionVariables.set('solicitanteId', json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"primeiro_nome\": \"Ana\",\n  \"email\": \"ana@example.com\",\n  \"senha\": \"senha123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/solicitantes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "solicitantes"]
+        }
+      }
+    },
+    {
+      "name": "Cadastrar ouvinte",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.id) pm.collectionVariables.set('ouvinteId', json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"primeiro_nome\": \"Bruno\",\n  \"email\": \"bruno@example.com\",\n  \"senha\": \"senha123\",\n  \"instituicao\": \"PUC Minas\",\n  \"periodo\": 5,\n  \"disponivel\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ouvintes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "ouvintes"]
+        }
+      }
+    },
+    {
+      "name": "Criar sessão",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.id) pm.collectionVariables.set('sessaoId', json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"solicitante_id\": \"{{solicitanteId}}\",\n  \"descricao\": \"Estou ansioso com as provas e gostaria de conversar.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sessoes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sessoes"]
+        }
+      }
+    },
+    {
+      "name": "Listar sessões pendentes",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sessoes/pendentes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sessoes", "pendentes"]
+        }
+      }
+    },
+    {
+      "name": "Consultar sessão por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sessoes/{{sessaoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sessoes", "{{sessaoId}}"]
+        }
+      }
+    },
+    {
+      "name": "Aceitar sessão (ouvinte)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"aceita\",\n  \"ouvinte_id\": \"{{ouvinteId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sessoes/{{sessaoId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sessoes", "{{sessaoId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "Iniciar sessão (em_andamento)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"em_andamento\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sessoes/{{sessaoId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sessoes", "{{sessaoId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "Concluir sessão",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"concluida\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sessoes/{{sessaoId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sessoes", "{{sessaoId}}", "status"]
+        }
+      }
+    }
+  ]
+}
