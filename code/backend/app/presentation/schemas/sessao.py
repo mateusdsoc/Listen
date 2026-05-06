@@ -7,7 +7,6 @@ from app.domain.entities.sessao import Avaliacao, Sessao, StatusSessao
 
 
 class SessaoCreateRequest(BaseModel):
-    solicitante_id: str
     descricao: str = Field(min_length=1, max_length=2000)
 
 

@@ -16,3 +16,7 @@ class InvalidStateTransitionError(ApplicationError):
 
 class ValidationError(ApplicationError):
     pass
+
+
+class AuthenticationError(ApplicationError):
+    pass

@@ -1,6 +1,11 @@
-from fastapi import Depends
+from dataclasses import dataclass
+from typing import Optional
+
+import jwt
+from fastapi import Depends, Header
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from app.application.exceptions import AuthenticationError
 from app.application.use_cases.atualizar_status_sessao import (
     AtualizarStatusSessaoUseCase,
 )
@@ -11,6 +16,8 @@ from app.application.use_cases.criar_solicitante import CriarSolicitanteUseCase
 from app.application.use_cases.listar_sessoes_pendentes import (
     ListarSessoesPendentesUseCase,
 )
+from app.application.use_cases.login import LoginUseCase
+from app.core.security import decode_access_token
 from app.domain.repositories.ouvinte_repository import OuvinteRepository
 from app.domain.repositories.sessao_repository import SessaoRepository
 from app.domain.repositories.solicitante_repository import SolicitanteRepository
@@ -26,10 +33,19 @@ from app.infrastructure.repositories.mongo_solicitante_repository import (
 )
 
 
+# ── Dataclass para o usuário autenticado ────────────────────────────
+@dataclass
+class CurrentUser:
+    user_id: str
+    role: str  # "solicitante" | "ouvinte"
+
+
+# ── Database ────────────────────────────────────────────────────────
 def get_db() -> AsyncIOMotorDatabase:
     return get_database()
 
 
+# ── Repositories ────────────────────────────────────────────────────
 def get_solicitante_repo(
     database: AsyncIOMotorDatabase = Depends(get_db),
 ) -> SolicitanteRepository:
@@ -48,16 +64,52 @@ def get_sessao_repo(
     return MongoSessaoRepository(database)
 
 
+# ── Auth dependency ─────────────────────────────────────────────────
+async def get_current_user(
+    authorization: Optional[str] = Header(default=None),
+) -> CurrentUser:
+    if not authorization:
+        raise AuthenticationError("Token de autenticação não fornecido")
+
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        raise AuthenticationError("Formato de token inválido. Use: Bearer <token>")
+
+    try:
+        payload = decode_access_token(token)
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationError("Token expirado")
+    except jwt.InvalidTokenError:
+        raise AuthenticationError("Token inválido")
+
+    user_id: Optional[str] = payload.get("sub")
+    role: Optional[str] = payload.get("role")
+    if not user_id or not role:
+        raise AuthenticationError("Token com dados incompletos")
+
+    return CurrentUser(user_id=user_id, role=role)
+
+
+# ── Use Cases ───────────────────────────────────────────────────────
+def get_login_uc(
+    solicitante_repo: SolicitanteRepository = Depends(get_solicitante_repo),
+    ouvinte_repo: OuvinteRepository = Depends(get_ouvinte_repo),
+) -> LoginUseCase:
+    return LoginUseCase(solicitante_repo, ouvinte_repo)
+
+
 def get_criar_solicitante_uc(
     repo: SolicitanteRepository = Depends(get_solicitante_repo),
+    ouvinte_repo: OuvinteRepository = Depends(get_ouvinte_repo),
 ) -> CriarSolicitanteUseCase:
-    return CriarSolicitanteUseCase(repo)
+    return CriarSolicitanteUseCase(repo, ouvinte_repo)
 
 
 def get_criar_ouvinte_uc(
     repo: OuvinteRepository = Depends(get_ouvinte_repo),
+    solicitante_repo: SolicitanteRepository = Depends(get_solicitante_repo),
 ) -> CriarOuvinteUseCase:
-    return CriarOuvinteUseCase(repo)
+    return CriarOuvinteUseCase(repo, solicitante_repo)
 
 
 def get_criar_sessao_uc(

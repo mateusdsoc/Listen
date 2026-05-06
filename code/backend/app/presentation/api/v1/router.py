@@ -1,8 +1,9 @@
 from fastapi import APIRouter
 
-from app.presentation.api.v1.endpoints import ouvintes, sessoes, solicitantes
+from app.presentation.api.v1.endpoints import auth, ouvintes, sessoes, solicitantes
 
 api_router = APIRouter()
+api_router.include_router(auth.router)
 api_router.include_router(solicitantes.router)
 api_router.include_router(ouvintes.router)
 api_router.include_router(sessoes.router)

@@ -15,9 +15,11 @@ from app.application.use_cases.listar_sessoes_pendentes import (
     ListarSessoesPendentesUseCase,
 )
 from app.presentation.api.deps import (
+    CurrentUser,
     get_atualizar_status_uc,
     get_consultar_sessao_uc,
     get_criar_sessao_uc,
+    get_current_user,
     get_listar_pendentes_uc,
 )
 from app.presentation.schemas.sessao import (
@@ -37,11 +39,12 @@ router = APIRouter(prefix="/sessoes", tags=["sessoes"])
 )
 async def criar_sessao(
     payload: SessaoCreateRequest,
+    current_user: CurrentUser = Depends(get_current_user),
     uc: CriarSessaoUseCase = Depends(get_criar_sessao_uc),
 ) -> SessaoResponse:
     entity = await uc.execute(
         CriarSessaoInput(
-            solicitante_id=payload.solicitante_id,
+            solicitante_id=current_user.user_id,
             descricao=payload.descricao,
         )
     )
@@ -54,6 +57,7 @@ async def criar_sessao(
     summary="Lista sessões com status pendente para os ouvintes",
 )
 async def listar_sessoes_pendentes(
+    current_user: CurrentUser = Depends(get_current_user),
     uc: ListarSessoesPendentesUseCase = Depends(get_listar_pendentes_uc),
 ) -> List[SessaoResponse]:
     sessoes = await uc.execute()
@@ -67,6 +71,7 @@ async def listar_sessoes_pendentes(
 )
 async def consultar_sessao(
     sessao_id: str = Path(..., description="ID da sessão"),
+    current_user: CurrentUser = Depends(get_current_user),
     uc: ConsultarSessaoUseCase = Depends(get_consultar_sessao_uc),
 ) -> SessaoResponse:
     entity = await uc.execute(sessao_id)
@@ -81,13 +86,17 @@ async def consultar_sessao(
 async def atualizar_status_sessao(
     payload: SessaoStatusUpdateRequest,
     sessao_id: str = Path(..., description="ID da sessão"),
+    current_user: CurrentUser = Depends(get_current_user),
     uc: AtualizarStatusSessaoUseCase = Depends(get_atualizar_status_uc),
 ) -> SessaoResponse:
+    ouvinte_id = payload.ouvinte_id or (
+        current_user.user_id if current_user.role == "ouvinte" else None
+    )
     entity = await uc.execute(
         AtualizarStatusSessaoInput(
             sessao_id=sessao_id,
             novo_status=payload.status,
-            ouvinte_id=payload.ouvinte_id,
+            ouvinte_id=ouvinte_id,
         )
     )
     return SessaoResponse.from_entity(entity)

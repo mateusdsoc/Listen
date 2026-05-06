@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from app.application.exceptions import (
+    AuthenticationError,
     ConflictError,
     InvalidStateTransitionError,
     NotFoundError,
@@ -35,4 +36,12 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={"detail": str(exc)},
+        )
+
+    @app.exception_handler(AuthenticationError)
+    async def _authentication(_: Request, exc: AuthenticationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": str(exc)},
+            headers={"WWW-Authenticate": "Bearer"},
         )
