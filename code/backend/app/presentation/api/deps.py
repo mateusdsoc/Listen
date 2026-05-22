@@ -18,10 +18,12 @@ from app.application.use_cases.listar_sessoes_pendentes import (
 )
 from app.application.use_cases.login import LoginUseCase
 from app.core.security import decode_access_token
+from app.domain.events.publisher import EventPublisher
 from app.domain.repositories.ouvinte_repository import OuvinteRepository
 from app.domain.repositories.sessao_repository import SessaoRepository
 from app.domain.repositories.solicitante_repository import SolicitanteRepository
 from app.infrastructure.database import get_database
+from app.infrastructure.messaging.rabbitmq_publisher import RabbitMQEventPublisher
 from app.infrastructure.repositories.mongo_ouvinte_repository import (
     MongoOuvinteRepository,
 )
@@ -62,6 +64,11 @@ def get_sessao_repo(
     database: AsyncIOMotorDatabase = Depends(get_db),
 ) -> SessaoRepository:
     return MongoSessaoRepository(database)
+
+
+# ── Event Publisher ─────────────────────────────────────────────────
+def get_event_publisher() -> EventPublisher:
+    return RabbitMQEventPublisher()
 
 
 # ── Auth dependency ─────────────────────────────────────────────────
@@ -115,8 +122,9 @@ def get_criar_ouvinte_uc(
 def get_criar_sessao_uc(
     sessao_repo: SessaoRepository = Depends(get_sessao_repo),
     solicitante_repo: SolicitanteRepository = Depends(get_solicitante_repo),
+    publisher: EventPublisher = Depends(get_event_publisher),
 ) -> CriarSessaoUseCase:
-    return CriarSessaoUseCase(sessao_repo, solicitante_repo)
+    return CriarSessaoUseCase(sessao_repo, solicitante_repo, publisher)
 
 
 def get_listar_pendentes_uc(
@@ -134,5 +142,6 @@ def get_consultar_sessao_uc(
 def get_atualizar_status_uc(
     sessao_repo: SessaoRepository = Depends(get_sessao_repo),
     ouvinte_repo: OuvinteRepository = Depends(get_ouvinte_repo),
+    publisher: EventPublisher = Depends(get_event_publisher),
 ) -> AtualizarStatusSessaoUseCase:
-    return AtualizarStatusSessaoUseCase(sessao_repo, ouvinte_repo)
+    return AtualizarStatusSessaoUseCase(sessao_repo, ouvinte_repo, publisher)
