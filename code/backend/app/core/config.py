@@ -13,5 +13,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24  # 24 horas
 
+    rabbitmq_url: str = "amqp://guest:guest@localhost:5672/"
+    rabbitmq_exchange: str = "listen.events"
+    rabbitmq_eventos_queue: str = "listen.eventos_log"
+
 
 settings = Settings()
