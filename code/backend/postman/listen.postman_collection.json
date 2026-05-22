@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Listen API - Sprint 1",
-    "description": "Coleção de testes do backend Listen (Sprint 1).\n\nFluxo completo: cadastro → login → criar sessão → aceitar → iniciar → concluir.\n\nExecute os requests na ordem de cima para baixo. Os IDs e tokens são salvos automaticamente entre requests.",
+    "name": "Listen API - Sprints 1 e 2",
+    "description": "Coleção de testes do backend Listen.\n\nFluxo completo: cadastro → login → criar sessão → aceitar → iniciar → concluir.\n\nExecute os requests na ordem de cima para baixo. Os IDs e tokens são salvos automaticamente entre requests.\n\nSprint 2 — eventos publicados no RabbitMQ durante o fluxo:\n  • POST /sessoes              → emite sessao.criada\n  • PATCH /sessoes/{id}/status → emite sessao.aceita (transição p/ aceita)\n                                ou sessao.encerrada (transição p/ concluida/cancelada)\n\nAcompanhe pelo container 'listen-consumer' (docker logs -f) ou pela UI do RabbitMQ em http://localhost:15672 (guest/guest).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
