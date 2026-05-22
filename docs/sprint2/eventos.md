@@ -91,6 +91,3 @@ flowchart LR
     C -- insert --> M[(MongoDB:<br/>eventos_log)]
 ```
 
-O backend **não conhece** o consumer: ele apenas publica no exchange. O
-consumer roda como processo separado (container `listen-consumer`) e
-processa as mensagens fora do ciclo HTTP, evidenciando assincronicidade.

@@ -55,15 +55,9 @@ possibilidade rara de uma escrita sem evento, mas nunca um evento sem
 escrita.
 
 **Consumer em processo separado.** O `eventos_consumer.py` roda como
-container independente (`listen-consumer`). Isso garante a
-demonstração explícita de assincronicidade exigida pela Sprint:
-o backend publica sem fazer nenhuma chamada REST ao consumer, e o
-consumer processa as mensagens fora do ciclo HTTP do FastAPI.
-
-**Persistência da evidência.** O consumer grava cada mensagem na
-coleção `eventos_log` do Mongo, além de logar no console. Isso facilita
-a verificação pelo professor: basta inspecionar a coleção para ver
-todo o histórico de eventos processados.
+container independente (`listen-consumer`). O backend publica no exchange
+sem nenhuma chamada direta ao consumer; o consumer processa as mensagens
+fora do ciclo HTTP e grava cada uma na coleção `eventos_log` do Mongo.
 
 ## 4. Desafios encontrados
 
@@ -74,17 +68,9 @@ todo o histórico de eventos processados.
 - **Conexão robusta**: usou-se `connect_robust` do `aio-pika`, que
   reconecta automaticamente caso o broker reinicie, evitando que uma
   queda momentânea derrube o backend.
-- **Tipagem de routing key e bind**: testes manuais via UI do RabbitMQ
-  foram úteis para confirmar que o bind `sessao.*` casa com as três
-  routing keys publicadas.
-
 ## 5. Evidências de funcionamento
 
-- `docs/sprint2/evidencias/` contém screenshots da UI do RabbitMQ
-  (`http://localhost:15672`, usuário `guest`/`guest`) mostrando o
-  exchange `listen.events`, a fila `listen.eventos_log` e o contador
-  de mensagens processadas.
-- A coleção `eventos_log` do Mongo armazena todas as mensagens
-  consumidas, com timestamp de produção e de recepção.
-- Logs do container `listen-consumer` mostram o processamento em
-  tempo real.
+Screenshots em `docs/sprint2/evidencias/`: exchange `listen.events` e
+fila `listen.eventos_log` na UI do RabbitMQ, logs do consumer e
+resultado de `db.eventos_log.find()` no Mongo após execução do fluxo
+completo via Postman.

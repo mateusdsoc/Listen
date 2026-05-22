@@ -76,12 +76,6 @@ Base: `/api/v1`
 | POST   | `/solicitantes`    | Cadastra um solicitante                |
 | POST   | `/ouvintes`        | Cadastra um ouvinte                    |
 
-### Health
-
-| Método | Rota       |
-|--------|------------|
-| GET    | `/health`  |
-
 ## Transições de status válidas
 
 ```
@@ -114,27 +108,4 @@ O container `listen-consumer` faz bind em `sessao.*` na fila
 Mongo e loga no console — serve como evidência de processamento
 assíncrono fora do ciclo HTTP do FastAPI.
 
-Documentação completa: [`docs/sprint2/eventos.md`](../../docs/sprint2/eventos.md)
-e [`docs/sprint2/relatorio_integracao.md`](../../docs/sprint2/relatorio_integracao.md).
-
-### Como verificar o fluxo de eventos
-
-```bash
-# 1. subir o stack completo
-docker compose up --build
-
-# 2. observar o consumer em tempo real (em outro terminal)
-docker logs -f listen-consumer
-
-# 3. abrir a UI do RabbitMQ
-#    http://localhost:15672  (guest/guest)
-#    → Exchanges → listen.events
-#    → Queues → listen.eventos_log
-
-# 4. disparar requests pela coleção Postman:
-#    - POST /api/v1/sessoes              → emite sessao.criada
-#    - PATCH /api/v1/sessoes/{id}/status → emite sessao.aceita ou sessao.encerrada
-
-# 5. inspecionar o histórico no Mongo
-docker exec -it listen-mongodb mongosh listen --eval "db.eventos_log.find().pretty()"
-```
+Detalhes dos eventos em [`docs/sprint2/eventos.md`](../../docs/sprint2/eventos.md).
