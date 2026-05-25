@@ -70,7 +70,30 @@ fora do ciclo HTTP e grava cada uma na coleção `eventos_log` do Mongo.
   queda momentânea derrube o backend.
 ## 5. Evidências de funcionamento
 
-Screenshots em `docs/sprint2/evidencias/`: exchange `listen.events` e
-fila `listen.eventos_log` na UI do RabbitMQ, logs do consumer e
-resultado de `db.eventos_log.find()` no Mongo após execução do fluxo
-completo via Postman.
+O fluxo completo foi executado em 25/05/2026 via Postman, na seguinte
+sequência: cadastro de solicitante e ouvinte, login dos dois, criação de
+sessão, aceite, início e conclusão.
+
+**RabbitMQ — exchange** (`rabbit_exchanges.png`): a aba Exchanges da UI
+de gerenciamento (porta `15672`) exibiu o exchange `listen.events` do
+tipo `topic`, com a flag `D` (durable), confirmando que o exchange
+persiste reinicializações do broker.
+
+**RabbitMQ — fila e binding** (`rabbit_fila.png`): no detalhe da fila
+`listen.eventos_log` foi visível o binding `sessao.*` originado do
+exchange `listen.events`, confirmando que qualquer evento com routing key
+prefixada por `sessao.` é entregue à fila.
+
+**Logs do consumer** (`consumer_logs.png`): ao subir, o container
+`listen-consumer` registrou uma falha de conexão na tentativa 1/10 (o
+RabbitMQ ainda estava inicializando), reconectou automaticamente e
+anunciou `Consumer pronto | fila=listen.eventos_log | bind=sessao.*`.
+Após a execução do fluxo, os três eventos foram recebidos em ordem:
+`sessao.criada` (22:17:44), `sessao.aceita` (22:18:09) e
+`sessao.encerrada` (22:18:18) com `status_final: concluida`.
+
+**MongoDB** (`mongo_eventos.png`): o comando
+`db.eventos_log.find().pretty()` retornou exatamente três documentos,
+um para cada evento, com os campos `routing_key`, `evento`, `ocorrido_em`,
+`data` e `recebido_em` preenchidos corretamente e coerentes com os
+timestamps dos logs do consumer.
