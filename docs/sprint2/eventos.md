@@ -31,9 +31,9 @@ Todo evento é publicado com a mesma estrutura externa:
 
 | Evento (routing key) | Endpoint que dispara | Produtor | Consumidor | Disparado em |
 |----------------------|----------------------|----------|------------|--------------|
-| `sessao.criada` | `POST /api/v1/sessoes` | `CriarSessaoUseCase` | `listen.eventos_log` (e futuramente app do ouvinte) | Solicitante abre uma nova sessão |
-| `sessao.aceita` | `PATCH /api/v1/sessoes/{sessao_id}/status` (`status=aceita`) | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (e futuramente app do solicitante) | Ouvinte aceita uma sessão pendente |
-| `sessao.encerrada` | `PATCH /api/v1/sessoes/{sessao_id}/status` (`status=concluida` ou `cancelada`) | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (e futuramente app do solicitante) | Sessão atinge `concluida` ou `cancelada` |
+| `sessao.criada` | `POST /api/v1/sessoes` | `CriarSessaoUseCase` | `listen.eventos_log` (app do ouvinte) | Solicitante abre uma nova sessão |
+| `sessao.aceita` | `PATCH /api/v1/sessoes/{sessao_id}/status` (`status=aceita`) | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (app do solicitante) | Ouvinte aceita uma sessão pendente |
+| `sessao.encerrada` | `PATCH /api/v1/sessoes/{sessao_id}/status` (`status=concluida` ou `cancelada`) | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (app do solicitante) | Sessão atinge `concluida` ou `cancelada` |
 
 ### `sessao.criada`
 
