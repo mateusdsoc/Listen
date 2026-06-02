@@ -36,6 +36,14 @@ class MongoSessaoRepository(SessaoRepository):
         cursor = self._collection.find({"status": status.value}).sort("created_at", 1)
         return [self._to_entity(doc) async for doc in cursor]
 
+    async def list_by_solicitante(self, solicitante_id: str) -> List[Sessao]:
+        if not ObjectId.is_valid(solicitante_id):
+            return []
+        cursor = self._collection.find(
+            {"solicitante_id": ObjectId(solicitante_id)}
+        ).sort("created_at", -1)
+        return [self._to_entity(doc) async for doc in cursor]
+
     async def update_status(
         self,
         sessao_id: str,

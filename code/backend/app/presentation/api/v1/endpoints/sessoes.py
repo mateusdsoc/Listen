@@ -11,6 +11,9 @@ from app.application.use_cases.criar_sessao import (
     CriarSessaoInput,
     CriarSessaoUseCase,
 )
+from app.application.use_cases.listar_sessoes_do_solicitante import (
+    ListarSessoesDoSolicitanteUseCase,
+)
 from app.application.use_cases.listar_sessoes_pendentes import (
     ListarSessoesPendentesUseCase,
 )
@@ -20,6 +23,7 @@ from app.presentation.api.deps import (
     get_consultar_sessao_uc,
     get_criar_sessao_uc,
     get_current_user,
+    get_listar_minhas_sessoes_uc,
     get_listar_pendentes_uc,
 )
 from app.presentation.schemas.sessao import (
@@ -61,6 +65,19 @@ async def listar_sessoes_pendentes(
     uc: ListarSessoesPendentesUseCase = Depends(get_listar_pendentes_uc),
 ) -> List[SessaoResponse]:
     sessoes = await uc.execute()
+    return [SessaoResponse.from_entity(s) for s in sessoes]
+
+
+@router.get(
+    "/minhas",
+    response_model=List[SessaoResponse],
+    summary="Lista as sessões do solicitante autenticado",
+)
+async def listar_minhas_sessoes(
+    current_user: CurrentUser = Depends(get_current_user),
+    uc: ListarSessoesDoSolicitanteUseCase = Depends(get_listar_minhas_sessoes_uc),
+) -> List[SessaoResponse]:
+    sessoes = await uc.execute(current_user.user_id)
     return [SessaoResponse.from_entity(s) for s in sessoes]
 
 

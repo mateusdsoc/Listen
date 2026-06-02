@@ -13,6 +13,9 @@ from app.application.use_cases.consultar_sessao import ConsultarSessaoUseCase
 from app.application.use_cases.criar_ouvinte import CriarOuvinteUseCase
 from app.application.use_cases.criar_sessao import CriarSessaoUseCase
 from app.application.use_cases.criar_solicitante import CriarSolicitanteUseCase
+from app.application.use_cases.listar_sessoes_do_solicitante import (
+    ListarSessoesDoSolicitanteUseCase,
+)
 from app.application.use_cases.listar_sessoes_pendentes import (
     ListarSessoesPendentesUseCase,
 )
@@ -131,6 +134,12 @@ def get_listar_pendentes_uc(
     repo: SessaoRepository = Depends(get_sessao_repo),
 ) -> ListarSessoesPendentesUseCase:
     return ListarSessoesPendentesUseCase(repo)
+
+
+def get_listar_minhas_sessoes_uc(
+    repo: SessaoRepository = Depends(get_sessao_repo),
+) -> ListarSessoesDoSolicitanteUseCase:
+    return ListarSessoesDoSolicitanteUseCase(repo)
 
 
 def get_consultar_sessao_uc(

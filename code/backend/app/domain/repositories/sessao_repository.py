@@ -15,6 +15,9 @@ class SessaoRepository(ABC):
     async def list_by_status(self, status: StatusSessao) -> List[Sessao]: ...
 
     @abstractmethod
+    async def list_by_solicitante(self, solicitante_id: str) -> List[Sessao]: ...
+
+    @abstractmethod
     async def update_status(
         self,
         sessao_id: str,
