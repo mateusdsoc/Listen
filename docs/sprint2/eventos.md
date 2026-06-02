@@ -29,11 +29,11 @@ Todo evento é publicado com a mesma estrutura externa:
 
 ## Eventos publicados
 
-| Evento (routing key) | Produtor | Consumidor | Disparado em |
-|----------------------|----------|------------|--------------|
-| `sessao.criada` | `CriarSessaoUseCase` | `listen.eventos_log` (e futuramente app do ouvinte) | Solicitante abre uma nova sessão |
-| `sessao.aceita` | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (e futuramente app do solicitante) | Ouvinte aceita uma sessão pendente |
-| `sessao.encerrada` | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (e futuramente app do solicitante) | Sessão atinge `concluida` ou `cancelada` |
+| Evento (routing key) | Endpoint que dispara | Produtor | Consumidor | Disparado em |
+|----------------------|----------------------|----------|------------|--------------|
+| `sessao.criada` | `POST /api/v1/sessoes` | `CriarSessaoUseCase` | `listen.eventos_log` (e futuramente app do ouvinte) | Solicitante abre uma nova sessão |
+| `sessao.aceita` | `PATCH /api/v1/sessoes/{sessao_id}/status` (`status=aceita`) | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (e futuramente app do solicitante) | Ouvinte aceita uma sessão pendente |
+| `sessao.encerrada` | `PATCH /api/v1/sessoes/{sessao_id}/status` (`status=concluida` ou `cancelada`) | `AtualizarStatusSessaoUseCase` | `listen.eventos_log` (e futuramente app do solicitante) | Sessão atinge `concluida` ou `cancelada` |
 
 ### `sessao.criada`
 
